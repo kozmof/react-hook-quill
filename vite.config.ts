@@ -1,5 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+// Package
+import pkg from './package.json'
+
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -9,6 +12,16 @@ export default defineConfig({
       entry: './src/index.ts',
       name: 'index',
       fileName: 'index'
+    },
+    rollupOptions: {
+      output: {
+        interop: 'auto',
+        globals: {
+          quill: 'Quill',
+          react: 'react'
+        }
+      },
+      external: Object.keys((pkg as any).dependencies || {})
     }
   }
 })
