@@ -1,7 +1,15 @@
-import { defineConfig } from 'vitest/config'
+import { coverageConfigDefaults, defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
-    environment: 'jsdom'
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './vitest.setup.ts',
+    coverage: {
+      exclude: [
+        './src/index.ts',
+        ...coverageConfigDefaults.exclude
+      ]
+    }
   },
 })

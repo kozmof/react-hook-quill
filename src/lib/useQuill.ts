@@ -1,15 +1,21 @@
 import Quill, { Delta, QuillOptions, } from "quill"
-import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { RefObject, useEffect, useMemo, useRef, useState } from "react"
 
-export type Setting = {
+
+export interface SafeQuillOptions<ModuleOption> extends QuillOptions {
+  modules?: Record<string, ModuleOption>
+}
+
+export type Setting<ModuleOption = unknown> = {
   /**
    * A div element to attach a Quill Editor to
    */
   containerRef: RefObject<HTMLDivElement | null>;
   /**
    * Options for initializing a Quill instance
+   * See: https://quilljs.com/docs/configuration#options
    */
-  options?: QuillOptions;
+  options?: SafeQuillOptions<ModuleOption>;
   /**
    * This function is executed only once when Quill is mounted.
    * A common use case is setting up synchronization of the Delta stored on the React side when the Quill side changes.
@@ -32,9 +38,7 @@ interface UseQuill {
 
 
 /**
- * A very thin wrapper for using Quill with Hooks. This is based on the official example.
- * 
- * See: https://quilljs.com/playground/react
+ * A light weight wrapper for using Quill with Hooks.
  * 
  * ----
  * Quill is used as an external system because it modifies HTML elements outside of the React lifecycle.
@@ -55,12 +59,12 @@ export const useQuill = ({ setting }: UseQuill) => {
    * Allow access to a Quill instance via the reference.
    * Quill API is accessible via this instance.
    */
-  const exposedQuillRef = useRef<Quill|null>(null);
+  const exposedQuillRef = useRef<Quill | null>(null);
 
   /**
    * Use for cleanup.
    */
-  const cleanupRef = useRef<{ parent: Element }|null>(null);
+  const cleanupRef = useRef<{ parent: Element } | null>(null);
 
   /**
    * Use Quill as an external system because it modifies HTML elements outside of the React lifecycle.
@@ -111,16 +115,21 @@ export const useQuill = ({ setting }: UseQuill) => {
  * @param setting 
  * @returns 
  */
-export const useSyncDelta = (setting: Setting) => {
-  const settingRef = useRef<Setting>(setting);
-  const [delta, setDelta] = useState(new Delta());
+export const useSyncDelta = (setting: Setting, defaultText: string = "") => {
+  const [internalSetting, setInternalSetting] = useState<Setting>(setting);
 
-  const syncDeltaSetup = useCallback((quill: Quill) => {
-    setDelta(quill.editor.delta);
-    quill.on('text-change', () => {
+  const [delta, setDelta] = useState(
+    defaultText === "" ?
+      new Delta() :
+      new Delta().insert(defaultText)
+  );
+
+  const syncDeltaSetupRef = useRef((quill: Quill) => {
+    quill.setContents(delta);
+    quill.on(Quill.events.TEXT_CHANGE, () => {
       setDelta(quill.editor.delta)
     })
-  }, [setDelta])
+  })
 
   const syncDelta = (quill: Quill | null, delta: Delta) => {
     if (quill !== null) {
@@ -129,17 +138,27 @@ export const useSyncDelta = (setting: Setting) => {
     }
   }
 
+  const updateSetting = (setting: Setting) => {
+    setInternalSetting(setting);
+    syncDeltaSetupRef.current = (quill: Quill) => {
+      quill.setContents(delta);
+      quill.on(Quill.events.TEXT_CHANGE, () => {
+        setDelta(quill.editor.delta)
+      })
+    }
+  }
+
   const syncDeltaSetting: Setting = useMemo(() => {
     return {
-      containerRef: settingRef.current.containerRef,
-      options: { ...settingRef.current.options },
+      containerRef: internalSetting.containerRef,
+      options: { ...internalSetting.options },
       setup: (quill) => {
-        settingRef.current.setup?.(quill)
-        syncDeltaSetup(quill)
+        internalSetting.setup?.(quill)
+        syncDeltaSetupRef.current?.(quill)
       },
-      cleanup: settingRef.current.cleanup
+      cleanup: internalSetting.cleanup
     }
-  }, [settingRef, syncDeltaSetup])
+  }, [internalSetting, syncDeltaSetupRef])
 
-  return { delta, setDelta, syncDelta, syncDeltaSetting }
+  return { delta, setDelta, syncDelta, syncDeltaSetting, updateSetting }
 }
