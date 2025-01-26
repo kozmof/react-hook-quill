@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { Setting, useQuill, useSyncDelta } from "../../../lib/useQuill";
+import { Delta } from "quill";
 
 
 export const RegisterModule2 = () => {
@@ -23,7 +24,7 @@ export const RegisterModule2 = () => {
     }
   }
 
-  const { syncDeltaSetting, updateSetting } = useSyncDelta({ ...setting }, "Hello Quill")
+  const { syncDeltaSetting, updateSetting } = useSyncDelta({ ...setting }, new Delta().insert("Hello Quill"))
 
   useQuill({
     setting: syncDeltaSetting

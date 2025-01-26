@@ -115,14 +115,10 @@ export const useQuill = ({ setting }: UseQuill) => {
  * @param setting 
  * @returns 
  */
-export const useSyncDelta = (setting: Setting, defaultText: string = "") => {
+export const useSyncDelta = (setting: Setting, defaultDelta: Delta = new Delta()) => {
   const [internalSetting, setInternalSetting] = useState<Setting>(setting);
 
-  const [delta, setDelta] = useState(
-    defaultText === "" ?
-      new Delta() :
-      new Delta().insert(defaultText)
-  );
+  const [delta, setDelta] = useState(defaultDelta);
 
   const syncDeltaSetupRef = useRef((quill: Quill) => {
     quill.setContents(delta);
@@ -153,8 +149,8 @@ export const useSyncDelta = (setting: Setting, defaultText: string = "") => {
       containerRef: internalSetting.containerRef,
       options: { ...internalSetting.options },
       setup: (quill) => {
-        internalSetting.setup?.(quill)
         syncDeltaSetupRef.current?.(quill)
+        internalSetting.setup?.(quill)
       },
       cleanup: internalSetting.cleanup
     }
