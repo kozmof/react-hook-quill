@@ -135,13 +135,13 @@ export const useSyncDelta = (setting: Setting, defaultDelta: Delta = new Delta()
   }
 
   const updateSetting = (setting: Setting) => {
-    setInternalSetting(setting);
     syncDeltaSetupRef.current = (quill: Quill) => {
       quill.setContents(delta);
       quill.on(Quill.events.TEXT_CHANGE, () => {
         setDelta(quill.editor.delta)
       })
     }
+    setInternalSetting(setting);
   }
 
   const syncDeltaSetting: Setting = useMemo(() => {
