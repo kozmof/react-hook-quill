@@ -1,5 +1,5 @@
 import Quill, { Delta, QuillOptions, } from "quill"
-import { RefObject, useEffect, useMemo, useRef, useState } from "react"
+import { RefObject, useEffect, useRef, useState } from "react"
 
 
 export interface SafeQuillOptions<ModuleOption> extends QuillOptions {
@@ -115,16 +115,24 @@ export const useQuill = ({ setting }: UseQuill) => {
  * @param setting 
  * @returns 
  */
-export const useSyncDelta = (setting: Setting, defaultDelta: Delta = new Delta()) => {
-  const [internalSetting, setInternalSetting] = useState<Setting>(setting);
+export const useSyncDelta = (setting: Setting, initialDelta: Delta = new Delta()) => {
+  const [delta, setDelta] = useState(initialDelta);
 
-  const [delta, setDelta] = useState(defaultDelta);
-
-  const syncDeltaSetupRef = useRef((quill: Quill) => {
+  const syncDeltaSetup = (quill: Quill) => {
     quill.setContents(delta);
     quill.on(Quill.events.TEXT_CHANGE, () => {
       setDelta(quill.editor.delta)
     })
+  }
+
+  const [syncDeltaSetting, setSynDeltaSetting] = useState<Setting>({
+      containerRef: setting.containerRef,
+      options: { ...setting.options },
+      setup: (quill) => {
+        syncDeltaSetup(quill)
+        setting.setup?.(quill)
+      },
+      cleanup: setting.cleanup
   })
 
   const syncDelta = (quill: Quill | null, delta: Delta) => {
@@ -135,26 +143,16 @@ export const useSyncDelta = (setting: Setting, defaultDelta: Delta = new Delta()
   }
 
   const updateSetting = (setting: Setting) => {
-    syncDeltaSetupRef.current = (quill: Quill) => {
-      quill.setContents(delta);
-      quill.on(Quill.events.TEXT_CHANGE, () => {
-        setDelta(quill.editor.delta)
-      })
-    }
-    setInternalSetting(setting);
-  }
-
-  const syncDeltaSetting: Setting = useMemo(() => {
-    return {
-      containerRef: internalSetting.containerRef,
-      options: { ...internalSetting.options },
+    setSynDeltaSetting({
+      containerRef: setting.containerRef,
+      options: { ...setting.options },
       setup: (quill) => {
-        syncDeltaSetupRef.current?.(quill)
-        internalSetting.setup?.(quill)
+        syncDeltaSetup(quill)
+        setting.setup?.(quill)
       },
-      cleanup: internalSetting.cleanup
-    }
-  }, [internalSetting, syncDeltaSetupRef])
+      cleanup: setting.cleanup
+    });
+  }
 
   return { delta, setDelta, syncDelta, syncDeltaSetting, updateSetting }
 }
