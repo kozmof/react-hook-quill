@@ -1,11 +1,26 @@
-import { memo, useState } from "react";
-import { NonStateControl } from "./NonStateControl";
-
-
-const NonStateButMemoized = memo(NonStateControl);
+import { useRef, useState } from "react";
+import { useQuill } from "../../../lib/useQuill";
+import { Delta } from "quill";
 
 export const NotCleanup = () => {
   const [count, setCount] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const deltaRef = useRef<Delta| null>(null);
+
+  useQuill({
+    setting: {
+      containerRef: ref,
+      setup: (quill) => {
+        if(deltaRef.current) {
+          quill.setContents(deltaRef.current);
+        }
+      },
+      cleanup: (quill) => {
+        deltaRef.current = quill.editor.delta;
+      }
+    }
+  });
+
   return (
     <>
       <button onClick={() => setCount(count => count + 1)}>
@@ -14,7 +29,7 @@ export const NotCleanup = () => {
       <p>
         {count}
       </p>
-      <NonStateButMemoized />
+      <div ref={ref} />
     </>
   )
 }

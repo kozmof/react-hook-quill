@@ -1,5 +1,5 @@
 import Quill from 'quill';
-import { findByRole, render, screen, waitFor, within, } from '@testing-library/react'
+import { render, screen, waitFor, within, } from '@testing-library/react'
 import { describe, it, expect } from 'vitest';
 
 import { editQuillRTLHelper, selectQuillRTLHelper } from '../test-util/helper';
