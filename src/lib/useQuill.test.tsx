@@ -2,7 +2,7 @@ import Quill from 'quill';
 import { render, screen, waitFor, within, } from '@testing-library/react'
 import { describe, it, expect } from 'vitest';
 
-import { editQuillRTLHelper } from '../test-util/helper';
+import { editQuillRTLHelper, selectQuillRTLHelper } from '../test-util/helper';
 import { user } from '../../vitest.setup';
 
 // Components for the tests
@@ -23,6 +23,7 @@ import { UpdateSetup } from '../test-util/components/test-use-sync-delta/UpdateS
 import { UpdateCleanup } from '../test-util/components/test-use-sync-delta/UpdateCleanup';
 import { RegisterBlot } from '../test-util/components/test-register-blot/RegisterBlot';
 import { DividerBlot } from '../test-util/components/test-register-blot/dividerBlot';
+import { OnSelection } from '../test-util/components/test-api/OnSelection';
 
 const enterAction = "[Enter]";
 
@@ -417,3 +418,14 @@ describe("The case for using useQuill with useSyncDelta", () => {
 })
 
 // ----------------------------------------------------------------------------------------------------------
+
+describe("The case for setting a selection change handler", () => {
+  it("selects some characters", async () => {
+    render(<OnSelection />);
+    await selectQuillRTLHelper(user, 6, [{ offset: 8 }])
+    expect(await screen.findByText("Qu")).toBeVisible()
+
+    await selectQuillRTLHelper(user);
+    expect(screen.queryByText("Qu")).toBeNull();
+  })
+})
