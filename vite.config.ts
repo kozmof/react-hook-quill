@@ -21,7 +21,7 @@ export default defineConfig({
           react: 'react'
         }
       },
-      external: Object.keys((pkg as any).dependencies || {})
+      external: Object.keys(pkg.dependencies || {})
     }
   }
 })
