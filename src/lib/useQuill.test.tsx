@@ -1,5 +1,5 @@
 import Quill from 'quill';
-import { render, screen, waitFor, within, } from '@testing-library/react'
+import { findByRole, render, screen, waitFor, within, } from '@testing-library/react'
 import { describe, it, expect } from 'vitest';
 
 import { editQuillRTLHelper, selectQuillRTLHelper } from '../test-util/helper';
@@ -24,6 +24,7 @@ import { UpdateCleanup } from '../test-util/components/test-use-sync-delta/Updat
 import { RegisterBlot } from '../test-util/components/test-register-blot/RegisterBlot';
 import { DividerBlot } from '../test-util/components/test-register-blot/dividerBlot';
 import { OnSelection } from '../test-util/components/test-api/OnSelection';
+import { RegisterToolbar } from '../test-util/components/test-register-module/RegisterToolbar';
 
 const enterAction = "[Enter]";
 
@@ -427,5 +428,14 @@ describe("The case for setting a selection change handler", () => {
 
     await selectQuillRTLHelper(user);
     expect(screen.queryByText("Qu")).toBeNull();
+  })
+})
+
+// ----------------------------------------------------------------------------------------------------------
+
+describe("The case for setting a custom toolbar", () => {
+  it("sets a custom toolbar", async () => {
+    render(<RegisterToolbar />);
+    expect(await screen.findByLabelText("strike")).toBeVisible();
   })
 })
