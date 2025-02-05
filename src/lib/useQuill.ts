@@ -168,12 +168,23 @@ export const usePersistentDelta = (setting: Setting, initialDelta: Delta = new D
  */
 export const useSyncDelta = (setting: Setting, initialDelta: Delta = new Delta()) => {
   const [delta, setDelta] = useState(initialDelta);
+  const textChangeHandlerRef = useRef<null | (() => void)>(null);
 
   const syncDeltaSetup = (quill: Quill) => {
     quill.setContents(delta);
-    quill.on(Quill.events.TEXT_CHANGE, () => {
-      setDelta(quill.editor.delta)
-    })
+    if (!textChangeHandlerRef.current) {
+      textChangeHandlerRef.current = () => {
+        setDelta(quill.editor.delta)
+      }
+      quill.on(Quill.events.TEXT_CHANGE, textChangeHandlerRef.current);
+    }
+  }
+
+  const syncDeltaCleanup = (quill: Quill) => {
+    if (textChangeHandlerRef.current) {
+      quill.off(Quill.events.TEXT_CHANGE, textChangeHandlerRef.current)
+      textChangeHandlerRef.current = null;
+    }
   }
 
   const [syncDeltaSetting, setSynDeltaSetting] = useState<Setting>({
@@ -183,7 +194,10 @@ export const useSyncDelta = (setting: Setting, initialDelta: Delta = new Delta()
       syncDeltaSetup(quill)
       setting.setup?.(quill)
     },
-    cleanup: setting.cleanup
+    cleanup: (quill) => {
+      syncDeltaCleanup(quill)
+      setting.cleanup?.(quill)
+    }
   })
 
   const syncDelta = (quill: Quill | null, delta: Delta) => {
