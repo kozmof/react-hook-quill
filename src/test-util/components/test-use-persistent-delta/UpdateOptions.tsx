@@ -1,8 +1,8 @@
 import { useRef } from "react";
-import { Setting, useQuill, useSyncDelta } from "../../../lib/useQuill";
+import { Setting, useQuill, usePersistentDelta } from "../../../lib/useQuill";
 import { Delta } from "quill";
 
-export const UpdateOptionsSD = () => {
+export const UpdateOptionsPD = () => {
   const ref = useRef<HTMLDivElement>(null);
   const setting: Setting = {
     containerRef: ref,
@@ -10,10 +10,10 @@ export const UpdateOptionsSD = () => {
       theme: 'bubble'
     }
   }
-  const { syncDeltaSetting, updateSetting } = useSyncDelta(setting, new Delta().insert("Hello Quill"))
+  const { persistentDeltaSetting, updateSetting } = usePersistentDelta(setting, new Delta().insert("Hello Quill"))
 
   useQuill({
-    setting: syncDeltaSetting
+    setting: persistentDeltaSetting
   });
 
   return (

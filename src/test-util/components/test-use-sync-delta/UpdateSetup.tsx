@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { Setting, useQuill, useSyncDelta } from "../../../lib/useQuill";
 import { Delta } from "quill";
 
-export const UpdateSetup = () => {
+export const UpdateSetupSD = () => {
   const ref = useRef<HTMLDivElement>(null);
   const [counts, setCounts] = useState(0);
 

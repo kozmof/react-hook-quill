@@ -2,8 +2,7 @@ import { useRef, useState } from "react";
 import { useQuill } from "../../../lib/useQuill";
 import { Delta } from "quill";
 
-export const NotCleanup = () => {
-  const [count, setCount] = useState(0);
+const NonStateControl = () => {
   const ref = useRef<HTMLDivElement>(null);
   const deltaRef = useRef<Delta| null>(null);
 
@@ -23,13 +22,23 @@ export const NotCleanup = () => {
 
   return (
     <>
+      <div ref={ref} />
+    </>
+  )
+}
+
+export const NotCleanup = () => {
+  const [count, setCount] = useState(0);
+
+  return (
+    <>
       <button onClick={() => setCount(count => count + 1)}>
         cleanup
       </button>
       <p>
         {count}
       </p>
-      <div ref={ref} />
+      <NonStateControl />
     </>
   )
 }

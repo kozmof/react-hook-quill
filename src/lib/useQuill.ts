@@ -115,6 +115,57 @@ export const useQuill = ({ setting }: UseQuill) => {
  * @param setting 
  * @returns 
  */
+export const usePersistentDelta = (setting: Setting, initialDelta: Delta = new Delta()) => {
+  const deltaRef = useRef<Delta | null>(null);
+
+  const persistentDeltaSetup = (quill: Quill) => {
+    if (deltaRef.current) {
+      quill.setContents(deltaRef.current);
+    } else {
+      quill.setContents(initialDelta);
+    }
+  }
+
+  const persistentDeltaCleanup = (quill: Quill) => {
+    deltaRef.current = quill.editor.delta;
+  }
+
+  const [persistentDeltaSetting, setPersistentDeltaSetting] = useState<Setting>({
+    containerRef: setting.containerRef,
+    options: { ...setting.options },
+    setup: (quill) => {
+      persistentDeltaSetup(quill);
+      setting.setup?.(quill);
+    },
+    cleanup: (quill) => {
+      persistentDeltaCleanup(quill);
+      setting.cleanup?.(quill);
+    }
+  })
+
+  const updateSetting = (setting: Setting) => {
+    setPersistentDeltaSetting({
+      containerRef: setting.containerRef,
+      options: { ...setting.options },
+      setup: (quill) => {
+        persistentDeltaSetup(quill);
+        setting.setup?.(quill);
+      },
+      cleanup: (quill) => {
+        persistentDeltaCleanup(quill);
+        setting.cleanup?.(quill);
+      }
+    });
+  }
+
+  return { persistentDeltaSetting, updateSetting }
+}
+
+/**
+ * 
+ * @param setting 
+ * @returns 
+ */
 export const useSyncDelta = (setting: Setting, initialDelta: Delta = new Delta()) => {
   const [delta, setDelta] = useState(initialDelta);
 
@@ -126,13 +177,13 @@ export const useSyncDelta = (setting: Setting, initialDelta: Delta = new Delta()
   }
 
   const [syncDeltaSetting, setSynDeltaSetting] = useState<Setting>({
-      containerRef: setting.containerRef,
-      options: { ...setting.options },
-      setup: (quill) => {
-        syncDeltaSetup(quill)
-        setting.setup?.(quill)
-      },
-      cleanup: setting.cleanup
+    containerRef: setting.containerRef,
+    options: { ...setting.options },
+    setup: (quill) => {
+      syncDeltaSetup(quill)
+      setting.setup?.(quill)
+    },
+    cleanup: setting.cleanup
   })
 
   const syncDelta = (quill: Quill | null, delta: Delta) => {

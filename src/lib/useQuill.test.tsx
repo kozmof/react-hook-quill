@@ -15,16 +15,20 @@ import { CallAPIInside } from '../test-util/components/test-api/CallAPIInside';
 import { CallAPIOutside } from '../test-util/components/test-api/CallAPIOutside';
 import { StateControl } from '../test-util/components/test-state-control/StateControl';
 import { UseSyncDelta1, UseSyncDelta2 } from '../test-util/components/test-use-sync-delta/UseSyncDelta';
-import { UpdateOptions } from '../test-util/components/test-use-sync-delta/UpdateOptions';
+import { UpdateOptionsSD } from '../test-util/components/test-use-sync-delta/UpdateOptions';
 import { RegisterModule1 } from '../test-util/components/test-register-module/RegisterModule1';
 import { RegisterModule2 } from '../test-util/components/test-register-module/RegisterModule2';
 import { Counter } from '../test-util/components/test-register-module/counter';
-import { UpdateSetup } from '../test-util/components/test-use-sync-delta/UpdateSetup';
-import { UpdateCleanup } from '../test-util/components/test-use-sync-delta/UpdateCleanup';
+import { UpdateSetupSD } from '../test-util/components/test-use-sync-delta/UpdateSetup';
+import { UpdateCleanupSD } from '../test-util/components/test-use-sync-delta/UpdateCleanup';
 import { RegisterBlot } from '../test-util/components/test-register-blot/RegisterBlot';
 import { DividerBlot } from '../test-util/components/test-register-blot/dividerBlot';
 import { OnSelection } from '../test-util/components/test-api/OnSelection';
 import { RegisterToolbar } from '../test-util/components/test-register-module/RegisterToolbar';
+import { UpdateCleanupPD } from '../test-util/components/test-use-persistent-delta/UpdateCleanup';
+import { UpdateSetupPD } from '../test-util/components/test-use-persistent-delta/UpdateSetup';
+import { UpdateOptionsPD } from '../test-util/components/test-use-persistent-delta/UpdateOptions';
+import { UsePersitentDelta } from '../test-util/components/test-use-persistent-delta/UsePersistentDelta';
 
 const enterAction = "[Enter]";
 
@@ -73,7 +77,7 @@ describe("The case where React doesn't have the state of edits on Quill", () => 
     expect(screen.queryByText("TEST INPUT")).toBeNull();
   })
 
-  it("keeps all edits through memoization, even if the parent component is re-rendered", async () => {
+  it("keeps all edits, even if the parent component is re-rendered", async () => {
     render(<NotCleanup />)
 
     // User edits
@@ -82,7 +86,7 @@ describe("The case where React doesn't have the state of edits on Quill", () => 
     })
 
     // Change the state of the parent component of Quill to trigger a re-render cycle.
-    // In this case, the Quill editor component is memoized and retains the user's edits.
+    // In this case, the Quill editor component retains the user's edits.
     const button = screen.getByText('cleanup')
     await user.click(button);
 
@@ -354,7 +358,7 @@ describe("The case for using useQuill with useSyncDelta", () => {
   })
 
   it("changes the settings correctly while the edits state remains the same", async () => {
-    render(<UpdateOptions />)
+    render(<UpdateOptionsSD />)
 
     // User edits
     await editQuillRTLHelper(user, async () => {
@@ -405,13 +409,98 @@ describe("The case for using useQuill with useSyncDelta", () => {
   })
 
   it("tests updating a setup function", async () => {
-    render(<UpdateSetup />)
+    render(<UpdateSetupSD />)
     await user.click(screen.getByRole("button", { name: "Update Setup" }))
     expect(await screen.findByText("101")).toBeVisible()
   })
 
   it("tests updating a cleanup function", async () => {
-    render(<UpdateCleanup />)
+    render(<UpdateCleanupSD />)
+    await user.click(screen.getByRole("button", { name: "Update Cleanup" }))
+    await user.click(screen.getByRole("button", { name: "Update Cleanup" }))
+    expect(await screen.findByText("101")).toBeVisible()
+  })
+})
+
+// ----------------------------------------------------------------------------------------------------------
+
+describe("The case for using useQuill with usePersitentDelta", () => {
+  it("keeps all edits, even if the parent component is re-rendered", async () => {
+    render(<UsePersitentDelta />)
+
+    // User edits
+    await editQuillRTLHelper(user, async () => {
+      await user.keyboard("TEST INPUT")
+    })
+
+    // Change the state of the parent component of Quill to trigger a re-render cycle.
+    // In this case, the Quill editor component retains the user's edits.
+    const button = screen.getByText('cleanup')
+    await user.click(button);
+
+    // User edits are not cleaned up
+    expect(await screen.findByText("TEST INPUT")).toBeVisible()
+  })
+
+  it("changes the settings correctly while the edits state remains the same", async () => {
+    render(<UpdateOptionsPD />)
+
+    // User edits
+    await editQuillRTLHelper(user, async () => {
+      await user.keyboard("TEST INPUT1")
+      await user.keyboard(enterAction)
+      await user.keyboard("TEST INPUT2")
+      await user.keyboard(enterAction)
+      await user.paste("TEST PASTE")
+    })
+
+    /**
+     * This is a bit of a tricky test.
+     * 
+     * Both the snow and bubble themes have a toolbar in DOM.
+     * When the theme is snow, ensure the toolbar is **not** in `ql-hidden` (toBeNull).
+     * When the theme is bubble, ensure the toolbar is in `ql-hidden` (toBeInTheDocument).
+     */
+
+    // Switch to the snow theme
+    await user.click(screen.getByRole("button", { name: "snow" }))
+    const qlHidden1 = (await waitFor(() => document.getElementsByClassName("ql-hidden"))).item(0);
+    if (qlHidden1 instanceof HTMLElement) {
+      expect(within(qlHidden1).queryByRole("toolbar")).toBeNull()
+    } else {
+      throw new Error();
+    }
+    expect(await screen.findByRole("toolbar")).toBeInTheDocument()
+
+    // Switch to the bubble theme
+    await user.click(screen.getByRole("button", { name: "bubble" }))
+    const qlHidden2 = (await waitFor(() => document.getElementsByClassName("ql-hidden"))).item(0);
+    if (qlHidden2 instanceof HTMLElement) {
+      expect(await within(qlHidden2).findByRole("toolbar")).toBeInTheDocument()
+    } else {
+      throw new Error();
+    }
+    expect(await screen.findByRole("toolbar")).toBeInTheDocument()
+
+    await editQuillRTLHelper(user, async () => {
+      await user.keyboard("TEST INPUT3")
+    })
+
+    expect(await screen.findByText("TEST INPUT1")).toBeVisible()
+    expect(await screen.findByText("TEST INPUT2")).toBeVisible()
+    expect(await screen.findByText("TEST INPUT3")).toBeVisible()
+    expect(await screen.findByText("TEST PASTE")).toBeVisible()
+    expect(await screen.findByText("Hello Quill")).toBeVisible()
+  })
+
+  it("tests updating a setup function", async () => {
+    render(<UpdateSetupPD />)
+    await user.click(screen.getByRole("button", { name: "Update Setup" }))
+    expect(await screen.findByText("101")).toBeVisible()
+  })
+
+  it("tests updating a cleanup function", async () => {
+    render(<UpdateCleanupPD />)
     await user.click(screen.getByRole("button", { name: "Update Cleanup" }))
     await user.click(screen.getByRole("button", { name: "Update Cleanup" }))
     expect(await screen.findByText("101")).toBeVisible()
