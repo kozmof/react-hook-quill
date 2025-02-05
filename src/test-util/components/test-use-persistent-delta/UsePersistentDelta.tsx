@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useQuill, usePersistentDelta } from "../../../lib/useQuill";
 
-const _UsePersitentDelta = () => {
+const InnerUsePersitentDelta = () => {
   const ref = useRef<HTMLDivElement>(null);
   const { persistentDeltaSetting } = usePersistentDelta({ containerRef: ref })
 
@@ -32,7 +32,7 @@ export const UsePersitentDelta = () => {
       <p>
         {count}
       </p>
-      <_UsePersitentDelta />
+      <InnerUsePersitentDelta />
     </>
   )
 }
