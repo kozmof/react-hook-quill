@@ -1,6 +1,6 @@
-import { useRef } from "react";
-import { Setting, useQuill, useSyncDelta } from "../../../lib/useQuill";
-import { Delta } from "quill";
+import { useRef } from 'react';
+import { Setting, useQuill, useSyncDelta } from '../../../lib/useQuill';
+import { Delta } from 'quill';
 
 
 export const RegisterModule2 = () => {
@@ -11,20 +11,20 @@ export const RegisterModule2 = () => {
     options: {
       modules: {
         counter: {
-          container: "#counter",
-          unit: "word"
+          container: '#counter',
+          unit: 'word'
         }
       }
     },
     cleanup: () => {
-      const container = document.querySelector("#counter");
+      const container = document.querySelector('#counter');
       if (container) {
-        container.textContent = ''
+        container.textContent = '';
       }
     }
-  }
+  };
 
-  const { syncDeltaSetting, updateSetting } = useSyncDelta({ ...setting }, new Delta().insert("Hello Quill"))
+  const { syncDeltaSetting, updateSetting } = useSyncDelta({ ...setting }, new Delta().insert('Hello Quill'));
 
   useQuill({
     setting: syncDeltaSetting
@@ -42,12 +42,12 @@ export const RegisterModule2 = () => {
             ...setting.options,
             modules: {
               counter: {
-                container: "#counter",
-                unit: "word"
+                container: '#counter',
+                unit: 'word'
               }
             }
           }
-        })
+        });
       }}>
         Count Words
       </button>
@@ -57,8 +57,8 @@ export const RegisterModule2 = () => {
           ...setting.options,
           modules: {
             counter: {
-              container: "#counter",
-              unit: "character"
+              container: '#counter',
+              unit: 'character'
             }
           }
         }
@@ -66,5 +66,5 @@ export const RegisterModule2 = () => {
         Count Characters
       </button>
     </>
-  )
-}
+  );
+};

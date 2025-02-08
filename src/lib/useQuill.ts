@@ -1,33 +1,35 @@
-import Quill, { Delta, QuillOptions, } from "quill"
-import { RefObject, useEffect, useRef, useState } from "react"
+import Quill, { Delta, QuillOptions } from 'quill';
+import { RefObject, useEffect, useRef, useState } from 'react';
 
 
 export interface SafeQuillOptions<ModuleOption> extends QuillOptions {
-  modules?: Record<string, ModuleOption>
+  modules?: Record<string, ModuleOption>;
 }
 
-export type Setting<ModuleOption = unknown> = {
+export interface Setting<ModuleOption = unknown> {
+
   /**
    * A div element to attach a Quill Editor to
    */
   containerRef: RefObject<HTMLDivElement | null>;
+
   /**
    * Options for initializing a Quill instance
    * See: https://quilljs.com/docs/configuration#options
    */
   options?: SafeQuillOptions<ModuleOption>;
+
   /**
    * This function is executed only once when Quill is mounted.
    * A common use case is setting up synchronization of the Delta stored on the React side when the Quill side changes.
    * @param quill a Quill instance
-   * @returns 
    */
   setup?: (quill: Quill) => void;
+
   /**
    * This function is executed only once when Quill is unmounted.
    * 
    * @param quill 
-   * @returns 
    */
   cleanup?: (quill: Quill) => void;
 }
@@ -38,7 +40,7 @@ interface UseQuill {
 
 
 /**
- * A light weight wrapper for using Quill with Hooks.
+ * A lightweight wrapper for using Quill with Hooks.
  * 
  * ----
  * Quill is used as an external system because it modifies HTML elements outside of the React lifecycle.
@@ -51,10 +53,12 @@ interface UseQuill {
  *   In some cases, you need to setup via `setting.setup` to sync the Delta stored on the React side when the Quill side changes.
  * - In the same way as `useEffect` behaves, it *always* cleans up Quill, including all edits, when the React component that holds it is unmounted.
  * 
- * @param param0 
- * @returns 
+ * @param useQuillParam Parameters for initializing Quill.
+ * @param useQuillParam.setting Settings for setup and cleanup functions, and more.
+ * @returns A ref to the Quill instance. See the pitfall of [useRef](https://react.dev/reference/react/useRef) before using this value.
  */
 export const useQuill = ({ setting }: UseQuill) => {
+
   /**
    * Allow access to a Quill instance via the reference.
    * Quill API is accessible via this instance.
@@ -76,9 +80,9 @@ export const useQuill = ({ setting }: UseQuill) => {
         const parent = setting.containerRef.current;
 
         const editorContainer = parent.appendChild(
-          parent.ownerDocument.createElement('div'),
+          parent.ownerDocument.createElement('div')
         );
-        cleanupRef.current = { parent }
+        cleanupRef.current = { parent };
 
         const quill = new Quill(editorContainer, setting.options);
         exposedQuillRef.current = quill;
@@ -99,21 +103,25 @@ export const useQuill = ({ setting }: UseQuill) => {
         }
         cleanupRef.current = null;
       }
-    }
+    };
 
   }, [
     exposedQuillRef,
     cleanupRef,
-    setting,
-  ])
+    setting
+  ]);
 
-  return exposedQuillRef
-}
+  return exposedQuillRef;
+};
 
 /**
+ * This hook prevents tracking of user edits on the React side but retains changes on the Quill side even when the parent component re-renders.
  * 
- * @param setting 
- * @returns 
+ * @param setting Settings for setup and cleanup functions, and more.
+ * @param [initialDelta] an initial value of `Delta`
+ * @returns obj
+ * @returns obj.persistentDeltaSetting the new setting, which is composed of the setting passing by
+ * @returns obj.updateSetting the function for updating settings
  */
 export const usePersistentDelta = (setting: Setting, initialDelta: Delta = new Delta()) => {
   const deltaRef = useRef<Delta | null>(null);
@@ -124,11 +132,11 @@ export const usePersistentDelta = (setting: Setting, initialDelta: Delta = new D
     } else {
       quill.setContents(initialDelta);
     }
-  }
+  };
 
   const persistentDeltaCleanup = (quill: Quill) => {
     deltaRef.current = quill.editor.delta;
-  }
+  };
 
   const [persistentDeltaSetting, setPersistentDeltaSetting] = useState<Setting>({
     containerRef: setting.containerRef,
@@ -141,7 +149,7 @@ export const usePersistentDelta = (setting: Setting, initialDelta: Delta = new D
       persistentDeltaCleanup(quill);
       setting.cleanup?.(quill);
     }
-  })
+  });
 
   const updateSetting = (setting: Setting) => {
     setPersistentDeltaSetting({
@@ -156,15 +164,28 @@ export const usePersistentDelta = (setting: Setting, initialDelta: Delta = new D
         setting.cleanup?.(quill);
       }
     });
-  }
+  };
 
-  return { persistentDeltaSetting, updateSetting }
-}
+  return {
+    persistentDeltaSetting,
+    updateSetting
+  };
+};
 
 /**
  * 
- * @param setting 
- * @returns 
+ * This hook automatically sets up the state of Delta with React.
+ * 
+ * Note that you may not really need to sync Delta with React in your application. Syncing Delta triggers a re-render with every user's edit and it may become an overhead in some cases.
+ * 
+ * @param setting Settings for setup and cleanup functions, and more.
+ * @param [initialDelta] an initial value of `Delta`
+ * @returns obj 
+ * @returns obj.delta A state of Delta on the React side. User edits are automatically synced.
+ * @returns obj.setDelta Minor use cases. Note that it changes the state of Delta only on the React side. Use syncDelta if you update both sides.
+ * @returns obj.syncDelta Change the Delta both on the React and Quill sides at once.
+ * @returns obj.syncDeltaSetting the new setting, which is composed of the setting passing by
+ * @returns obj.updateSetting the function for updating settings
  */
 export const useSyncDelta = (setting: Setting, initialDelta: Delta = new Delta()) => {
   const [delta, setDelta] = useState(initialDelta);
@@ -174,50 +195,56 @@ export const useSyncDelta = (setting: Setting, initialDelta: Delta = new Delta()
     quill.setContents(delta);
     if (!textChangeHandlerRef.current) {
       textChangeHandlerRef.current = () => {
-        setDelta(quill.editor.delta)
-      }
+        setDelta(quill.editor.delta);
+      };
       quill.on(Quill.events.TEXT_CHANGE, textChangeHandlerRef.current);
     }
-  }
+  };
 
   const syncDeltaCleanup = (quill: Quill) => {
     if (textChangeHandlerRef.current) {
-      quill.off(Quill.events.TEXT_CHANGE, textChangeHandlerRef.current)
+      quill.off(Quill.events.TEXT_CHANGE, textChangeHandlerRef.current);
       textChangeHandlerRef.current = null;
     }
-  }
+  };
 
   const [syncDeltaSetting, setSynDeltaSetting] = useState<Setting>({
     containerRef: setting.containerRef,
     options: { ...setting.options },
     setup: (quill) => {
-      syncDeltaSetup(quill)
-      setting.setup?.(quill)
+      syncDeltaSetup(quill);
+      setting.setup?.(quill);
     },
     cleanup: (quill) => {
-      syncDeltaCleanup(quill)
-      setting.cleanup?.(quill)
+      syncDeltaCleanup(quill);
+      setting.cleanup?.(quill);
     }
-  })
+  });
 
   const syncDelta = (quill: Quill | null, delta: Delta) => {
     if (quill !== null) {
       setDelta(delta);
       quill?.setContents(delta);
     }
-  }
+  };
 
   const updateSetting = (setting: Setting) => {
     setSynDeltaSetting({
       containerRef: setting.containerRef,
       options: { ...setting.options },
       setup: (quill) => {
-        syncDeltaSetup(quill)
-        setting.setup?.(quill)
+        syncDeltaSetup(quill);
+        setting.setup?.(quill);
       },
       cleanup: setting.cleanup
     });
-  }
+  };
 
-  return { delta, setDelta, syncDelta, syncDeltaSetting, updateSetting }
-}
+  return {
+    delta,
+    setDelta,
+    syncDelta,
+    syncDeltaSetting,
+    updateSetting
+  };
+};

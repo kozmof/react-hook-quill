@@ -1,12 +1,12 @@
-import Quill, { Delta } from "quill";
-import { useRef, useState } from "react";
-import { Setting, useQuill } from "../../../lib/useQuill";
-import { DividerValue } from "./dividerBlot";
+import Quill, { Delta } from 'quill';
+import { useRef, useState } from 'react';
+import { Setting, useQuill } from '../../../lib/useQuill';
+import { DividerValue } from './dividerBlot';
 
 
 export const RegisterBlot = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const [delta, setDelta] = useState(new Delta().insert("Hello Quill"));
+  const [delta, setDelta] = useState(new Delta().insert('Hello Quill'));
 
   const settingRef = useRef<Setting>({
     containerRef: ref,
@@ -16,9 +16,9 @@ export const RegisterBlot = () => {
 
       quill.on(Quill.events.TEXT_CHANGE, () => {
         setDelta(quill.editor.delta);
-      })
+      });
     }
-  })
+  });
 
   const quillRef = useQuill({
     setting: settingRef.current
@@ -40,5 +40,5 @@ export const RegisterBlot = () => {
         Add Divider
       </button>
     </>
-  )
-}
+  );
+};

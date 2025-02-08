@@ -1,12 +1,12 @@
-import { useRef, useState } from "react";
-import { Setting, useQuill } from "../../../lib/useQuill";
-import Quill, { Delta } from "quill";
+import { useRef, useState } from 'react';
+import { Setting, useQuill } from '../../../lib/useQuill';
+import Quill, { Delta } from 'quill';
 
 export const StateControl = () => {
   const ref = useRef<HTMLDivElement>(null);
   // Control delta by useState.
-  const [delta, setDelta] = useState(new Delta().insert("Hello Quill"));
-  const [text, setText] = useState("");
+  const [delta, setDelta] = useState(new Delta().insert('Hello Quill'));
+  const [text, setText] = useState('');
 
   /**
    * Set `Setting` as an outside of React lifecycles by useRef.
@@ -21,9 +21,9 @@ export const StateControl = () => {
 
       quill.on('text-change', () => {
         setDelta(quill.editor.delta);
-      })
+      });
     }
-  })
+  });
 
   const quillRef = useQuill({
     setting: settingRef.current
@@ -34,7 +34,7 @@ export const StateControl = () => {
       setDelta(delta);
       quill.setContents(delta);
     }
-  }
+  };
 
   return (
     <>
@@ -50,7 +50,7 @@ export const StateControl = () => {
       />
       <button onClick={() => {
         syncDelta(quillRef.current, new Delta(quillRef.current?.editor.delta).insert(text));
-        setText("");
+        setText('');
       }}>
         Insert
       </button>
@@ -59,5 +59,5 @@ export const StateControl = () => {
         {JSON.stringify(delta)}
       </div>
     </>
-  )
-}
+  );
+};

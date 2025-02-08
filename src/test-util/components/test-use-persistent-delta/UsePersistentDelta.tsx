@@ -1,9 +1,9 @@
-import { useRef, useState } from "react";
-import { useQuill, usePersistentDelta } from "../../../lib/useQuill";
+import { useRef, useState } from 'react';
+import { useQuill, usePersistentDelta } from '../../../lib/useQuill';
 
 const InnerUsePersitentDelta = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const { persistentDeltaSetting } = usePersistentDelta({ containerRef: ref })
+  const { persistentDeltaSetting } = usePersistentDelta({ containerRef: ref });
 
   useQuill({
     setting: persistentDeltaSetting
@@ -11,14 +11,14 @@ const InnerUsePersitentDelta = () => {
 
   return (
     <div ref={ref} />
-  )
+  );
 
-}
+};
 
 export const UsePersitentDelta = () => {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
-  const { persistentDeltaSetting } = usePersistentDelta({ containerRef: ref })
+  const { persistentDeltaSetting } = usePersistentDelta({ containerRef: ref });
 
   useQuill({
     setting: persistentDeltaSetting
@@ -34,5 +34,5 @@ export const UsePersitentDelta = () => {
       </p>
       <InnerUsePersitentDelta />
     </>
-  )
-}
+  );
+};

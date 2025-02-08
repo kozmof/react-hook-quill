@@ -1,5 +1,5 @@
-import { useRef } from "react";
-import { useQuill } from "../../../lib/useQuill";
+import { useRef } from 'react';
+import { useQuill } from '../../../lib/useQuill';
 
 export const NonStateControl = () => {
   const ref = useRef<HTMLDivElement>(null);
@@ -11,5 +11,5 @@ export const NonStateControl = () => {
 
   return (
     <div ref={ref} />
-  )
-}
+  );
+};

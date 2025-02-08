@@ -1,16 +1,16 @@
-import { useRef, useState } from "react";
-import { useQuill } from "../../../lib/useQuill";
-import { Delta } from "quill";
+import { useRef, useState } from 'react';
+import { useQuill } from '../../../lib/useQuill';
+import { Delta } from 'quill';
 
 const NonStateControl = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const deltaRef = useRef<Delta| null>(null);
+  const deltaRef = useRef<Delta | null>(null);
 
   useQuill({
     setting: {
       containerRef: ref,
       setup: (quill) => {
-        if(deltaRef.current) {
+        if (deltaRef.current) {
           quill.setContents(deltaRef.current);
         }
       },
@@ -24,8 +24,8 @@ const NonStateControl = () => {
     <>
       <div ref={ref} />
     </>
-  )
-}
+  );
+};
 
 export const NotCleanup = () => {
   const [count, setCount] = useState(0);
@@ -40,5 +40,5 @@ export const NotCleanup = () => {
       </p>
       <NonStateControl />
     </>
-  )
-}
+  );
+};

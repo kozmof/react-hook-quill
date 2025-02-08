@@ -1,4 +1,4 @@
-import { cleanup } from "@testing-library/react";
+import { cleanup } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
 import '@testing-library/jest-dom';
 import userEvent from '@testing-library/user-event';
@@ -20,7 +20,7 @@ Range.prototype.getBoundingClientRect = () => ({
 Range.prototype.getClientRects = () => ({
   item: vi.fn(),
   length: 0,
-  [Symbol.iterator]: vi.fn(),
+  [Symbol.iterator]: vi.fn()
 });
 
 

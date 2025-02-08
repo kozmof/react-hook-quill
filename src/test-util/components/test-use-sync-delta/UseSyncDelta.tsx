@@ -1,11 +1,11 @@
-import { useRef, useState } from "react";
-import { useQuill, useSyncDelta } from "../../../lib/useQuill";
-import { Delta } from "quill";
+import { useRef, useState } from 'react';
+import { useQuill, useSyncDelta } from '../../../lib/useQuill';
+import { Delta } from 'quill';
 
 export const UseSyncDelta1 = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const [text, setText] = useState("");
-  const { delta, syncDelta, syncDeltaSetting } = useSyncDelta({ containerRef: ref })
+  const [text, setText] = useState('');
+  const { delta, syncDelta, syncDeltaSetting } = useSyncDelta({ containerRef: ref });
   const quillRef = useQuill({
     setting: syncDeltaSetting
   });
@@ -24,7 +24,7 @@ export const UseSyncDelta1 = () => {
       />
       <button onClick={() => {
         syncDelta(quillRef.current, new Delta(quillRef.current?.editor.delta).insert(text));
-        setText("");
+        setText('');
       }}>
         Insert
       </button>
@@ -33,13 +33,13 @@ export const UseSyncDelta1 = () => {
         {JSON.stringify(delta)}
       </div>
     </>
-  )
-}
+  );
+};
 
 export const UseSyncDelta2 = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const [text, setText] = useState("");
-  const { delta, syncDelta, syncDeltaSetting } = useSyncDelta({ containerRef: ref }, new Delta().insert("Hello Quill"))
+  const [text, setText] = useState('');
+  const { delta, syncDelta, syncDeltaSetting } = useSyncDelta({ containerRef: ref }, new Delta().insert('Hello Quill'));
   const quillRef = useQuill({
     setting: syncDeltaSetting
   });
@@ -58,7 +58,7 @@ export const UseSyncDelta2 = () => {
       />
       <button onClick={() => {
         syncDelta(quillRef.current, new Delta(quillRef.current?.editor.delta).insert(text));
-        setText("");
+        setText('');
       }}>
         Insert
       </button>
@@ -67,5 +67,5 @@ export const UseSyncDelta2 = () => {
         {JSON.stringify(delta)}
       </div>
     </>
-  )
-}
+  );
+};

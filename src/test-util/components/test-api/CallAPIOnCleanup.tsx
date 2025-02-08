@@ -1,5 +1,5 @@
-import { useRef } from "react";
-import { useQuill } from "../../../lib/useQuill";
+import { useRef } from 'react';
+import { useQuill } from '../../../lib/useQuill';
 
 export const CallAPIOnCleanup = () => {
   const ref = useRef<HTMLDivElement>(null);
@@ -14,5 +14,5 @@ export const CallAPIOnCleanup = () => {
 
   return (
     <div ref={ref} />
-  )
-}
+  );
+};

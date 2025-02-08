@@ -1,6 +1,6 @@
-import { useRef, useState } from "react";
-import { Setting, useQuill, usePersistentDelta } from "../../../lib/useQuill";
-import { Delta } from "quill";
+import { useRef, useState } from 'react';
+import { Setting, useQuill, usePersistentDelta } from '../../../lib/useQuill';
+import { Delta } from 'quill';
 
 export const UpdateSetupPD = () => {
   const ref = useRef<HTMLDivElement>(null);
@@ -11,8 +11,8 @@ export const UpdateSetupPD = () => {
     setup: () => {
       setCounts(counts => counts + 1);
     }
-  }
-  const { persistentDeltaSetting, updateSetting } = usePersistentDelta(setting, new Delta().insert("Hello Quill"))
+  };
+  const { persistentDeltaSetting, updateSetting } = usePersistentDelta(setting, new Delta().insert('Hello Quill'));
 
   useQuill({
     setting: persistentDeltaSetting
@@ -25,11 +25,11 @@ export const UpdateSetupPD = () => {
       <button onClick={() => updateSetting({
         ...setting,
         setup: () => {
-          setCounts(counts => counts + 100)
+          setCounts(counts => counts + 100);
         }
       })}>
         Update Setup
       </button>
     </>
-  )
-}
+  );
+};

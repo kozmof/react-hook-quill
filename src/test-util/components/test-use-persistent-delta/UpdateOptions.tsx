@@ -1,6 +1,6 @@
-import { useRef } from "react";
-import { Setting, useQuill, usePersistentDelta } from "../../../lib/useQuill";
-import { Delta } from "quill";
+import { useRef } from 'react';
+import { Setting, useQuill, usePersistentDelta } from '../../../lib/useQuill';
+import { Delta } from 'quill';
 
 export const UpdateOptionsPD = () => {
   const ref = useRef<HTMLDivElement>(null);
@@ -9,8 +9,8 @@ export const UpdateOptionsPD = () => {
     options: {
       theme: 'bubble'
     }
-  }
-  const { persistentDeltaSetting, updateSetting } = usePersistentDelta(setting, new Delta().insert("Hello Quill"))
+  };
+  const { persistentDeltaSetting, updateSetting } = usePersistentDelta(setting, new Delta().insert('Hello Quill'));
 
   useQuill({
     setting: persistentDeltaSetting
@@ -21,15 +21,21 @@ export const UpdateOptionsPD = () => {
       <div ref={ref} />
 
       <button onClick={() => {
-        updateSetting({ ...setting, options: { theme: 'snow' } })
+        updateSetting({
+          ...setting,
+          options: { theme: 'snow' }
+        });
       }}>
         snow
       </button>
       <button onClick={() => {
-        updateSetting({ ...setting, options: { theme: 'bubble' } })
+        updateSetting({
+          ...setting,
+          options: { theme: 'bubble' }
+        });
       }}>
         bubble
       </button>
     </>
-  )
-}
+  );
+};

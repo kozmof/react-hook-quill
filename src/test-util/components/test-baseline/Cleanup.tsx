@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { NonStateControl } from "./NonStateControl";
+import { useState } from 'react';
+import { NonStateControl } from './NonStateControl';
 
 export const Cleanup = () => {
   const [count, setCount] = useState(0);
@@ -13,5 +13,5 @@ export const Cleanup = () => {
       </p>
       <NonStateControl />
     </>
-  )
-}
+  );
+};

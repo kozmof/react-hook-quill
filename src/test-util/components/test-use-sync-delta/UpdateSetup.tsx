@@ -1,6 +1,6 @@
-import { useRef, useState } from "react";
-import { Setting, useQuill, useSyncDelta } from "../../../lib/useQuill";
-import { Delta } from "quill";
+import { useRef, useState } from 'react';
+import { Setting, useQuill, useSyncDelta } from '../../../lib/useQuill';
+import { Delta } from 'quill';
 
 export const UpdateSetupSD = () => {
   const ref = useRef<HTMLDivElement>(null);
@@ -11,8 +11,8 @@ export const UpdateSetupSD = () => {
     setup: () => {
       setCounts(counts => counts + 1);
     }
-  }
-  const { syncDeltaSetting, updateSetting } = useSyncDelta(setting, new Delta().insert("Hello Quill"))
+  };
+  const { syncDeltaSetting, updateSetting } = useSyncDelta(setting, new Delta().insert('Hello Quill'));
 
   useQuill({
     setting: syncDeltaSetting
@@ -25,11 +25,11 @@ export const UpdateSetupSD = () => {
       <button onClick={() => updateSetting({
         ...setting,
         setup: () => {
-          setCounts(counts => counts + 100)
+          setCounts(counts => counts + 100);
         }
       })}>
         Update Setup
       </button>
     </>
-  )
-}
+  );
+};

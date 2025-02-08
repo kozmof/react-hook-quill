@@ -1,6 +1,6 @@
-import { useRef } from "react";
-import { useQuill } from "../../../lib/useQuill";
-import { Delta } from "quill";
+import { useRef } from 'react';
+import { useQuill } from '../../../lib/useQuill';
+import { Delta } from 'quill';
 
 export const CallAPIInside = () => {
   const ref = useRef<HTMLDivElement>(null);
@@ -14,12 +14,12 @@ export const CallAPIInside = () => {
   return (
     <>
       <button onClick={() => {
-        const delta = new Delta(quillRef.current?.editor.delta).insert("INSERT");
+        const delta = new Delta(quillRef.current?.editor.delta).insert('INSERT');
         quillRef.current?.setContents(delta);
       }}>
         Insert
       </button>
       <div ref={ref} />
     </>
-  )
-}
+  );
+};

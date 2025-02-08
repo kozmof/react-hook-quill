@@ -1,23 +1,24 @@
-import Quill, { Module } from "quill";
+import Quill, { Module } from 'quill';
 
-export type CounterModuleOptions = {
+export interface CounterModuleOptions {
   container: '#counter';
-  unit: "word" | "character" ;
+  unit: 'word' | 'character' ;
 }
 
 // https://quilljs.com/docs/guides/building-a-custom-module
 export class Counter extends Module<CounterModuleOptions> {
-  public quill: Quill
-  public options: CounterModuleOptions
+  public quill: Quill;
 
-  constructor(quill: Quill, options: CounterModuleOptions) {
+  public options: CounterModuleOptions;
+
+  constructor (quill: Quill, options: CounterModuleOptions) {
     super(quill, options);
     this.quill = quill;
     this.options = options;
     quill.on(Quill.events.TEXT_CHANGE, this.update.bind(this));
   }
 
-  calculate() {
+  calculate () {
     const text = this.quill.getText();
 
     if (this.options.unit === 'word') {
@@ -29,15 +30,15 @@ export class Counter extends Module<CounterModuleOptions> {
     }
   }
 
-  update() {
+  update () {
     const length = this.calculate();
     let label = this.options.unit;
     if (length !== 1) {
       label += 's';
     }
 
-    const container = <HTMLElement | null>document.querySelector(this.options.container);
-    if(container) {
+    const container = document.querySelector(this.options.container) as HTMLElement | null;
+    if (container) {
       // Use textContent instead of innerText.
       // https://github.com/jsdom/jsdom/issues/1245
       container.textContent = `${length} ${label}`;
