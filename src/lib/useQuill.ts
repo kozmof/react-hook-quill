@@ -22,14 +22,11 @@ export interface Setting<ModuleOption = unknown> {
   /**
    * This function is executed only once when Quill is mounted.
    * A common use case is setting up synchronization of the Delta stored on the React side when the Quill side changes.
-   * @param quill a Quill instance
    */
   setup?: (quill: Quill) => void;
 
   /**
    * This function is executed only once when Quill is unmounted.
-   * 
-   * @param quill 
    */
   cleanup?: (quill: Quill) => void;
 }

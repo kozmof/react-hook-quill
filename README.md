@@ -2,6 +2,11 @@
 React Hook Quill is a lightweight wrapper for [Quill](https://quilljs.com/) that does not interfere with the design of either React or Quill.
 
 Quill is implemented without frameworks like React. To put it simply, this hook internally initializes Quill as an [external system](https://react.dev/reference/react/useEffect#connecting-to-an-external-system) within React using `useEffect` and cleans it up during the unmount phase.
+
+
+![architecture](./architecture.excalidraw.png)
+
+
 ## Quick Start
 ### Install
 ```bash
@@ -12,33 +17,32 @@ npm install react-hook-quill
 In this case, user edits are outside of the React lifecycle. React doesn't track the Quill changes, but user edits are automatically retained.
 
 ```tsx
-import { memo, useRef } from "react";
-import "quill/dist/quill.snow.css"
+import { memo, useRef } from 'react';
+import 'quill/dist/quill.snow.css';
 import { Delta } from 'quill';
-import { useQuill, usePersistentDelta } from "react-hook-quill";
+import { useQuill, usePersistentDelta } from 'react-hook-quill';
 
 // Use `memo` to avoid re-rendering when the parent component re-renders.
 // This is for performance purposes only.
-export const Editor = memo(() => {
+const Editor = memo(() => {
   const ref = useRef<HTMLDivElement>(null);
   const { persistentDeltaSetting } = usePersistentDelta(
     {
       containerRef: ref,
       options: {
-        theme: "snow",
+        theme: 'snow'
       }
     },
     // Set an initial Delta (optional).
-    new Delta().insert("Hello Quill")
-  )
+    new Delta().insert('Hello Quill')
+  );
 
   useQuill({ setting: persistentDeltaSetting });
 
   return (
     <div ref={ref} />
-  )
-})
-
+  );
+});
 ```
 
 #### Reference
@@ -51,10 +55,10 @@ Note that you may not really need to sync `Delta` with React in your application
 Syncing `Delta` triggers a re-render with every user's edit and it may become an overhead in some cases.
 
 ```tsx
-import { useRef } from "react";
+import { useRef } from 'react';
 import { Delta } from 'quill';
-import "quill/dist/quill.snow.css"
-import { useQuill, useSyncDelta } from "react-hook-quill";
+import 'quill/dist/quill.snow.css';
+import { useQuill, useSyncDelta } from 'react-hook-quill';
 
 const Editor = () => {
   const ref = useRef<HTMLDivElement>(null);
@@ -62,12 +66,12 @@ const Editor = () => {
     {
       containerRef: ref,
       options: {
-        theme: "snow"
+        theme: 'snow'
       }
     },
     // Set an initial Delta (optional).
-    new Delta().insert("Hello Quill")
-  )
+    new Delta().insert('Hello Quill')
+  );
 
   useQuill({
     setting: syncDeltaSetting
@@ -78,9 +82,8 @@ const Editor = () => {
       <div ref={ref} />
       <div>{JSON.stringify(delta)}</div>
     </>
-  )
-}
-
+  );
+};
 ```
 #### Reference
 - Render and Commit: https://react.dev/learn/render-and-commit
@@ -112,35 +115,33 @@ Quill API is fully accessible in the same way as mentioned above.
 - Quill API: https://quilljs.com/docs/api
 - Pitfall of useRef: https://react.dev/reference/react/useRef#referencing-a-value-with-a-ref
 
-## Types and Interfaces
+## Interfaces
 ### Setting
 A type for the parameter of `useQuill`.
 ```ts
-type Setting<ModuleOption = unknown> = {
+interface Setting<ModuleOption = unknown> {
+
   /**
    * A div element to attach a Quill Editor to
    */
   containerRef: React.RefObject<HTMLDivElement | null>;
+
   /**
    * Options for initializing a Quill instance
    * See: https://quilljs.com/docs/configuration#options
    */
   options?: SafeQuillOptions<ModuleOption>;
+
   /**
    * This function is executed only once when Quill is mounted.
    * A common use case is setting up synchronization of the Delta stored on the React side when the Quill side changes.
    * You can read or write a ref object inside.
-   * 
-   * @param quill a Quill instance
-   * @returns 
    */
   setup?: (quill: Quill) => void;
+
   /**
    * This function is executed only once when Quill is unmounted.
    * You can read or write a ref object inside.
-   * 
-   * @param quill 
-   * @returns 
    */
   cleanup?: (quill: Quill) => void;
 }
@@ -149,7 +150,7 @@ type Setting<ModuleOption = unknown> = {
 It extends the type of `modules` in `QuillOptions` to explicitly specify its type using generics. It is originally `Record<string, unknown>`.
 ```ts
 interface SafeQuillOptions<ModuleOption> extends QuillOptions {
-  modules?: Record<string, ModuleOption>
+  modules?: Record<string, ModuleOption>;
 }
 ```
 
@@ -226,12 +227,12 @@ type:
 
 
 ## More Examples
-### Non State Controll of `Delta` with React
+### Non-state Control of `Delta` with React
 ```tsx
-import { memo, useRef } from "react";
-import { Delta } from "quill";
-import "quill/dist/quill.snow.css";
-import { useQuill } from "react-hook-quill";
+import { memo, useRef } from 'react';
+import { Delta } from 'quill';
+import 'quill/dist/quill.snow.css';
+import { useQuill } from 'react-hook-quill';
 
 const Editor = memo(() => {
   const ref = useRef<HTMLDivElement>(null);
@@ -248,7 +249,7 @@ const Editor = memo(() => {
         // If previous user edits exist, set up the delta.
         // You can read or write to the ref object because this function is called internally in `useEffect`.
         // See the pitfall of useRef: https://react.dev/reference/react/useRef#referencing-a-value-with-a-ref
-        if(deltaRef.current) {
+        if (deltaRef.current) {
           quill.setContents(deltaRef.current);
         }
       },
@@ -262,8 +263,8 @@ const Editor = memo(() => {
 
   return (
     <div ref={ref} />
-  )
-})
+  );
+});
 ```
 #### Reference
 - memo: https://react.dev/reference/react/memo
@@ -272,9 +273,9 @@ const Editor = memo(() => {
 
 ### Configure options
 ```tsx
-import { memo, useRef } from "react";
-import "quill/dist/quill.snow.css"
-import { useQuill, usePersistentDelta } from "react-hook-quill";
+import { memo, useRef } from 'react';
+import 'quill/dist/quill.snow.css';
+import { useQuill, usePersistentDelta } from 'react-hook-quill';
 
 // https://quilljs.com/docs/modules/toolbar
 const toolbarOptions = [
@@ -282,18 +283,18 @@ const toolbarOptions = [
   ['blockquote', 'code-block'],
   ['link', 'image', 'video', 'formula'],
 
-  [{ 'header': 1 }, { 'header': 2 }],
-  [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'list': 'check' }],
-  [{ 'script': 'sub' }, { 'script': 'super' }],
-  [{ 'indent': '-1' }, { 'indent': '+1' }],
-  [{ 'direction': 'rtl' }],
+  [{ header: 1 }, { header: 2 }],
+  [{ list: 'ordered' }, { list: 'bullet' }, { list: 'check' }],
+  [{ script: 'sub' }, { script: 'super' }],
+  [{ indent: '-1' }, { indent: '+1' }],
+  [{ direction: 'rtl' }],
 
-  [{ 'size': ['small', false, 'large', 'huge'] }],
-  [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+  [{ size: ['small', false, 'large', 'huge'] }],
+  [{ header: [1, 2, 3, 4, 5, 6, false] }],
 
-  [{ 'color': [] }, { 'background': [] }],
-  [{ 'font': [] }],
-  [{ 'align': [] }],
+  [{ color: [] }, { background: [] }],
+  [{ font: [] }],
+  [{ align: [] }],
 
   ['clean']
 ];
@@ -303,47 +304,47 @@ const Editor = memo(() => {
   const { persistentDeltaSetting } = usePersistentDelta({
     containerRef: ref,
     options: {
-      theme: "snow",
-      placeholder: "Enter some text...",
+      theme: 'snow',
+      placeholder: 'Enter some text...',
       modules: {
         toolbar: toolbarOptions
       }
     }
-  })
+  });
 
   useQuill({ setting: persistentDeltaSetting });
 
   return (
     <div ref={ref} />
-  )
-})
-
+  );
+});
 ```
 ### Configure modules
 ```tsx
-import { memo, useRef } from "react";
-import "quill/dist/quill.snow.css"
+import { memo, useRef } from 'react';
+import 'quill/dist/quill.snow.css';
 import Quill, { Module } from 'quill';
-import { useQuill, usePersistentDelta, Setting } from "react-hook-quill";
+import { useQuill, usePersistentDelta, Setting } from 'react-hook-quill';
 
-type CounterModuleOptions = {
+interface CounterModuleOptions {
   container: '#counter';
-  unit: "word" | "character";
+  unit: 'word' | 'character';
 }
 
 // https://quilljs.com/docs/guides/building-a-custom-module
 class Counter extends Module<CounterModuleOptions> {
-  public quill: Quill
-  public options: CounterModuleOptions
+  public quill: Quill;
 
-  constructor(quill: Quill, options: CounterModuleOptions) {
+  public options: CounterModuleOptions;
+
+  constructor (quill: Quill, options: CounterModuleOptions) {
     super(quill, options);
     this.quill = quill;
     this.options = options;
     quill.on(Quill.events.TEXT_CHANGE, this.update.bind(this));
   }
 
-  calculate() {
+  calculate () {
     const text = this.quill.getText();
 
     if (this.options.unit === 'word') {
@@ -354,7 +355,7 @@ class Counter extends Module<CounterModuleOptions> {
     }
   }
 
-  update() {
+  update () {
     const length = this.calculate();
     let label = this.options.unit;
     if (length !== 1) {
@@ -375,15 +376,15 @@ const Editor = memo(() => {
   const setting: Setting<CounterModuleOptions> = {
     containerRef: ref,
     options: {
-      theme: "snow",
+      theme: 'snow',
       modules: {
         counter: {
-          container: "#counter",
-          unit: "character"
+          container: '#counter',
+          unit: 'character'
         }
       }
     }
-  }
+  };
 
   const { persistentDeltaSetting } = usePersistentDelta(setting);
   useQuill({ setting: persistentDeltaSetting });
@@ -393,25 +394,25 @@ const Editor = memo(() => {
       <div ref={ref} />
       <div id='counter' />
     </>
-  )
-})
-
+  );
+});
 ```
 ### Configure blots
 ```tsx
-import { memo, useRef } from "react";
-import { useQuill, usePersistentDelta } from "react-hook-quill";
-import Quill from "quill";
-import { BlockEmbed } from "quill/blots/block";
-import "quill/dist/quill.snow.css"
+import { memo, useRef } from 'react';
+import { useQuill, usePersistentDelta } from 'react-hook-quill';
+import Quill from 'quill';
+import { BlockEmbed } from 'quill/blots/block';
+import 'quill/dist/quill.snow.css';
 
 type DividerValue = 'blue' | 'red';
 
 class DividerBlot extends BlockEmbed {
   static blotName = 'divider';
+
   static tagName = 'hr';
 
-  static create(value: DividerValue) {
+  static create (value: DividerValue) {
     const node = super.create(value);
     if (node instanceof HTMLElement) {
       node.setAttribute('style', `border: 1px solid ${value};`);
@@ -428,10 +429,10 @@ const Editor = memo(() => {
     {
       containerRef: ref,
       options: {
-        theme: "snow",
+        theme: 'snow'
       }
     }
-  )
+  );
 
   const quillRef = useQuill({ setting: persistentDeltaSetting });
 
@@ -451,23 +452,23 @@ const Editor = memo(() => {
         Add Divider
       </button>
     </>
-  )
-})
+  );
+});
 ```
 ### Update settings
 ```tsx
-import { memo, useRef, useState } from "react";
-import "quill/dist/quill.snow.css"
-import "quill/dist/quill.bubble.css"
-import { useQuill, usePersistentDelta } from "react-hook-quill";
+import { memo, useRef, useState } from 'react';
+import 'quill/dist/quill.snow.css';
+import 'quill/dist/quill.bubble.css';
+import { useQuill, usePersistentDelta } from 'react-hook-quill';
 
 export const Editor = memo(() => {
   const ref = useRef<HTMLDivElement>(null);
-  const [theme, setTheme] = useState("snow");
+  const [theme, setTheme] = useState('snow');
   const { persistentDeltaSetting, updateSetting } = usePersistentDelta({
     containerRef: ref,
     options: {
-      theme: "snow",
+      theme: 'snow'
     }
   });
 
@@ -477,18 +478,18 @@ export const Editor = memo(() => {
     <>
       <div ref={ref} />
       <button onClick={() => {
-        const nextTheme = theme === "snow" ? "bubble" : "snow"
+        const nextTheme = theme === 'snow' ? 'bubble' : 'snow';
         updateSetting({
           containerRef: ref,
           options: {
-            theme: nextTheme,
+            theme: nextTheme
           }
-        })
-        setTheme(nextTheme)
+        });
+        setTheme(nextTheme);
       }}>
         Change the theme
       </button>
     </>
-  )
-})
+  );
+});
 ```
