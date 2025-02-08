@@ -6,7 +6,7 @@ export interface SafeQuillOptions<ModuleOption> extends QuillOptions {
   modules?: Record<string, ModuleOption>;
 }
 
-export interface Setting<ModuleOption = unknown> {
+export type Setting<ModuleOption = unknown> = {
 
   /**
    * A div element to attach a Quill Editor to
@@ -22,14 +22,16 @@ export interface Setting<ModuleOption = unknown> {
   /**
    * This function is executed only once when Quill is mounted.
    * A common use case is setting up synchronization of the Delta stored on the React side when the Quill side changes.
+   * You can read or write a ref object inside.
    */
   setup?: (quill: Quill) => void;
 
   /**
    * This function is executed only once when Quill is unmounted.
+   * You can read or write a ref object inside.
    */
   cleanup?: (quill: Quill) => void;
-}
+};
 
 interface UseQuill {
   setting: Setting;

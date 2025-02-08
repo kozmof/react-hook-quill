@@ -115,11 +115,11 @@ Quill API is fully accessible in the same way as mentioned above.
 - Quill API: https://quilljs.com/docs/api
 - Pitfall of useRef: https://react.dev/reference/react/useRef#referencing-a-value-with-a-ref
 
-## Interfaces
+## Types and Interfaces
 ### Setting
 A type for the parameter of `useQuill`.
 ```ts
-interface Setting<ModuleOption = unknown> {
+export type Setting<ModuleOption = unknown> = {
 
   /**
    * A div element to attach a Quill Editor to

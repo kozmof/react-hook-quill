@@ -36,6 +36,7 @@ export default tseslint.config(
       '@stylistic/ts/quotes': ['error', 'single'],
       '@stylistic/ts/quote-props': ['error', 'as-needed'],
       '@stylistic/ts/object-curly-spacing': ['error', 'always'],
+      '@typescript-eslint/consistent-type-definitions': 'off',
     },
   },
 )
