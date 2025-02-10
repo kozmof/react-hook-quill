@@ -14,7 +14,7 @@
   "homepage": "https://github.com/kozmof/react-hook-quill",
   "repository": {
     "type": "github",
-    "url": "https://github.com/kozmof/react-hook-quill.git"
+    "url": "git+https://github.com/kozmof/react-hook-quill.git"
   },
   "author": {
     "name": "Kozo Oeda"
@@ -22,13 +22,22 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "dev": "vite",
     "build": "vite build && tsc",
+    "build:strict": "npm run lint && npm run coverage && npm run build",
     "lint": "eslint .",
-    "preview": "vite preview",
     "test": "vitest",
     "coverage": "vitest run --coverage",
-    "pack": "npm run build && npm pack --pack-destination ~"
+
+    "pack:home": "npm pack --pack-destination ~",
+    "pack:check": "npm run pack:home && npm run pack:check::compare",
+    "preflight": "npm publish --dry-run",
+    "prepack": "npm run build:strict && cp README.md _README.md && npm run prepack::sed",
+    "postpack": "mv _README.md README.md",
+
+    "prepack::sed": "sed -i 's/\\!\\[architecture\\](\\.\\/architecture\\.excalidraw\\.png)//g' README.md",
+    "pack:check::name": "v=$(echo $npm_package_version) && name='react-hook-quill-'$v && echo $name",
+    "pack:check::counts": "name=$(npm run --silent pack:check::name) && echo $(tar -tzf ~/$name.tgz | wc -l)",
+    "pack:check::compare": "counts=$(npm run --silent pack:check::counts) && if [ $counts -ne 6 ]; then echo ERROR: check files in tgz; exit 1; else echo OK; fi"
   },
   "dependencies": {
     "quill": "^2.0.3",
