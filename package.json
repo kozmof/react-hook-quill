@@ -1,7 +1,7 @@
 {
   "name": "react-hook-quill",
-  "private": true,
-  "version": "0.0.0",
+  "private": false,
+  "version": "1.0.0",
   "description": "React Hook Quill is a lightweight wrapper for Quill that does not interfere with the design of either React or Quill.",
   "keywords": [
     "React",
