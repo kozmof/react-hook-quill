@@ -1,7 +1,7 @@
 {
   "name": "react-hook-quill",
   "private": false,
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "React Hook Quill is a lightweight wrapper for Quill that does not interfere with the design of either React or Quill.",
   "keywords": [
     "React",
@@ -13,7 +13,8 @@
     "editor",
     "WYSIWYG",
     "wysiwyg",
-    "wrapper"
+    "wrapper",
+    "text editor"
   ],
   "homepage": "https://github.com/kozmof/react-hook-quill",
   "repository": {
@@ -31,13 +32,11 @@
     "lint": "eslint .",
     "test": "vitest",
     "coverage": "vitest run --coverage",
-
     "pack:home": "npm pack --pack-destination ~",
     "pack:check": "npm run pack:home && npm run pack:check::compare",
     "preflight": "npm publish --dry-run",
     "prepack": "npm run build:strict && cp README.md _README.md && npm run prepack::sed",
     "postpack": "mv _README.md README.md",
-
     "prepack::sed": "sed -i 's/\\!\\[architecture\\](\\.\\/architecture\\.excalidraw\\.png)//g' README.md",
     "pack:check::name": "v=$(echo $npm_package_version) && name='react-hook-quill-'$v && echo $name",
     "pack:check::counts": "name=$(npm run --silent pack:check::name) && echo $(tar -tzf ~/$name.tgz | wc -l)",
@@ -53,20 +52,21 @@
     "@stylistic/eslint-plugin-ts": "^3.1.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.1.0",
-    "@testing-library/user-event": "^14.6.0",
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
-    "@vitest/coverage-v8": "^2.1.8",
-    "eslint": "^9.17.0",
+    "@vitest/coverage-v8": "^3.0.5",
+    "eslint": "^9.20.1",
     "eslint-plugin-react-hooks": "^5.0.0",
-    "eslint-plugin-react-refresh": "^0.4.16",
-    "globals": "^15.14.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^15.15.0",
+    "jsdom": "^26.0.0",
     "typescript": "~5.6.2",
-    "typescript-eslint": "^8.18.2",
-    "vite": "^6.0.5",
-    "vitest": "^2.1.8"
+    "typescript-eslint": "^8.24.1",
+    "vite": "^6.1.0",
+    "vitest": "^3.0.5"
   },
   "main": "./dist/index.umd.cjs",
   "module": "./dist/index.js",
