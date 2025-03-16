@@ -1,7 +1,7 @@
 # React Hook Quill
 React Hook Quill is a lightweight wrapper for [Quill](https://quilljs.com/) that does not interfere with the design of either React or Quill.
 
-Quill is implemented without frameworks like React. To put it simply, this hook internally initializes Quill as an [external system](https://react.dev/reference/react/useEffect#connecting-to-an-external-system) within React using `useEffect` and cleans it up during the unmount phase.
+Quill is implemented without frameworks like React. To put it simply, this hook internally initializes Quill as an [external system](https://react.dev/reference/react/useEffect#connecting-to-an-external-system) within React using `useEffect` and cleans it up during a re-render and the unmount phase.
 
 ![architecture](./architecture.excalidraw.png)
 
