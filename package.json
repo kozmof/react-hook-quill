@@ -1,7 +1,7 @@
 {
   "name": "react-hook-quill",
   "private": false,
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "React Hook Quill is a lightweight wrapper for Quill that does not interfere with the design of either React or Quill.",
   "keywords": [
     "React",
@@ -14,7 +14,8 @@
     "WYSIWYG",
     "wysiwyg",
     "wrapper",
-    "text editor"
+    "text editor",
+    "rich text"
   ],
   "homepage": "https://github.com/kozmof/react-hook-quill",
   "repository": {
