@@ -29,6 +29,10 @@ const Editor = memo(() => {
       containerRef: ref,
       options: {
         theme: 'snow'
+      },
+      setup: (quill) => {
+        // Disable undo for the initial text. (optional)
+        quill.history.clear()
       }
     },
     // Set an initial Delta (optional).
@@ -65,6 +69,10 @@ const Editor = () => {
       containerRef: ref,
       options: {
         theme: 'snow'
+      },
+      setup: (quill) => {
+        // Disable undo for the initial text. (optional)
+        quill.history.clear()
       }
     },
     // Set an initial Delta (optional).
