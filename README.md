@@ -31,7 +31,7 @@ const Editor = memo(() => {
         theme: 'snow'
       },
       setup: (quill) => {
-        // Disable undo for the initial text. (optional)
+        // Disable undo for the initial text (optional).
         quill.history.clear()
       }
     },
@@ -71,7 +71,7 @@ const Editor = () => {
         theme: 'snow'
       },
       setup: (quill) => {
-        // Disable undo for the initial text. (optional)
+        // Disable undo for the initial text (optional).
         quill.history.clear()
       }
     },
