@@ -1,7 +1,7 @@
 {
   "name": "react-hook-quill",
   "private": false,
-  "version": "1.0.29",
+  "version": "1.0.30",
   "description": "React Hook Quill is a lightweight wrapper for Quill, the rich text editor that does not interfere with the design of either React or Quill.",
   "keywords": [
     "React",
@@ -34,14 +34,14 @@
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "pack:home": "npm pack --pack-destination ~",
-    "pack:check": "npm run pack:home && npm run pack:check::compare",
+    "pack:check": "npm run pack:home && npm run pack:check-compare",
     "preflight": "npm publish --dry-run",
-    "prepack": "npm run build:strict && cp README.md _README.md && npm run prepack::sed",
+    "prepack": "npm run build:strict && cp README.md _README.md && npm run prepack-sed",
     "postpack": "mv _README.md README.md",
-    "prepack::sed": "sed -i 's/\\!\\[architecture\\](\\.\\/architecture\\.excalidraw\\.png)//g' README.md",
-    "pack:check::name": "v=$(echo $npm_package_version) && name='react-hook-quill-'$v && echo $name",
-    "pack:check::counts": "name=$(npm run --silent pack:check::name) && echo $(tar -tzf ~/$name.tgz | wc -l)",
-    "pack:check::compare": "counts=$(npm run --silent pack:check::counts) && if [ $counts -ne 7 ]; then echo ERROR: check files in tgz; exit 1; else echo OK; fi"
+    "prepack-sed": "sed -i 's/\\!\\[architecture\\](\\.\\/architecture\\.excalidraw\\.png)//g' README.md",
+    "pack:check-name": "v=$(echo $npm_package_version) && name='react-hook-quill-'$v && echo $name",
+    "pack:check-counts": "name=$(npm run --silent pack:check-name) && echo $(tar -tzf ~/$name.tgz | wc -l)",
+    "pack:check-compare": "counts=$(npm run --silent pack:check-counts) && if [ $counts -ne 7 ]; then echo ERROR: check files in tgz; exit 1; else echo OK; fi"
   },
   "dependencies": {
     "quill": "^2.0.3",
