@@ -1,5 +1,5 @@
 import Quill, { Delta, QuillOptions } from 'quill';
-import { RefObject, useEffect, useRef, useState } from 'react';
+import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 
 
 export interface SafeQuillOptions<ModuleOption> extends QuillOptions {
@@ -76,16 +76,27 @@ export const useQuill = ({ setting }: UseQuill) => {
     if (setting.containerRef.current) {
       // Initialization
       if (exposedQuillRef.current === null) {
-        const parent = setting.containerRef.current;
+        try {
+          const parent = setting.containerRef.current;
 
-        const editorContainer = parent.appendChild(
-          parent.ownerDocument.createElement('div')
-        );
-        cleanupRef.current = { parent };
+          const editorContainer = parent.appendChild(
+            parent.ownerDocument.createElement('div')
+          );
+          cleanupRef.current = { parent };
 
-        const quill = new Quill(editorContainer, setting.options);
-        exposedQuillRef.current = quill;
-        setting.setup?.(exposedQuillRef.current);
+          const quill = new Quill(editorContainer, setting.options);
+          exposedQuillRef.current = quill;
+          setting.setup?.(exposedQuillRef.current);
+        } catch (error) {
+          console.error('Failed to initialize Quill:', error);
+          // Clean up partial initialization if it failed
+          if (cleanupRef.current) {
+            while (cleanupRef.current.parent.lastChild) {
+              cleanupRef.current.parent.removeChild(cleanupRef.current.parent.lastChild);
+            }
+            cleanupRef.current = null;
+          }
+        }
       }
     }
 
@@ -104,11 +115,7 @@ export const useQuill = ({ setting }: UseQuill) => {
       }
     };
 
-  }, [
-    exposedQuillRef,
-    cleanupRef,
-    setting
-  ]);
+  }, [setting]);
 
   return exposedQuillRef;
 };
@@ -124,22 +131,23 @@ export const useQuill = ({ setting }: UseQuill) => {
  */
 export const usePersistentDelta = (setting: Setting, initialDelta: Delta = new Delta()) => {
   const deltaRef = useRef<Delta | null>(null);
+  const initialDeltaRef = useRef(initialDelta);
 
-  const persistentDeltaSetup = (quill: Quill) => {
+  const persistentDeltaSetup = useCallback((quill: Quill) => {
     if (deltaRef.current) {
       quill.setContents(deltaRef.current);
     } else {
-      quill.setContents(initialDelta);
+      quill.setContents(initialDeltaRef.current);
     }
-  };
+  }, []);
 
-  const persistentDeltaCleanup = (quill: Quill) => {
+  const persistentDeltaCleanup = useCallback((quill: Quill) => {
     deltaRef.current = quill.editor.delta;
-  };
+  }, []);
 
-  const [persistentDeltaSetting, setPersistentDeltaSetting] = useState<Setting>({
+  const [persistentDeltaSetting, setPersistentDeltaSetting] = useState<Setting>(() => ({
     containerRef: setting.containerRef,
-    options: { ...setting.options },
+    options: setting.options,
     setup: (quill) => {
       persistentDeltaSetup(quill);
       setting.setup?.(quill);
@@ -148,12 +156,12 @@ export const usePersistentDelta = (setting: Setting, initialDelta: Delta = new D
       persistentDeltaCleanup(quill);
       setting.cleanup?.(quill);
     }
-  });
+  }));
 
-  const updateSetting = (setting: Setting) => {
+  const updateSetting = useCallback((setting: Setting) => {
     setPersistentDeltaSetting({
       containerRef: setting.containerRef,
-      options: { ...setting.options },
+      options: setting.options,
       setup: (quill) => {
         persistentDeltaSetup(quill);
         setting.setup?.(quill);
@@ -163,7 +171,7 @@ export const usePersistentDelta = (setting: Setting, initialDelta: Delta = new D
         setting.cleanup?.(quill);
       }
     });
-  };
+  }, [persistentDeltaSetup, persistentDeltaCleanup]);
 
   return {
     persistentDeltaSetting,
@@ -190,7 +198,7 @@ export const useSyncDelta = (setting: Setting, initialDelta: Delta = new Delta()
   const [delta, setDelta] = useState(initialDelta);
   const textChangeHandlerRef = useRef<null | (() => void)>(null);
 
-  const syncDeltaSetup = (quill: Quill) => {
+  const syncDeltaSetup = useCallback((quill: Quill) => {
     quill.setContents(delta);
     if (!textChangeHandlerRef.current) {
       textChangeHandlerRef.current = () => {
@@ -198,18 +206,18 @@ export const useSyncDelta = (setting: Setting, initialDelta: Delta = new Delta()
       };
       quill.on(Quill.events.TEXT_CHANGE, textChangeHandlerRef.current);
     }
-  };
+  }, [delta]);
 
-  const syncDeltaCleanup = (quill: Quill) => {
+  const syncDeltaCleanup = useCallback((quill: Quill) => {
     if (textChangeHandlerRef.current) {
       quill.off(Quill.events.TEXT_CHANGE, textChangeHandlerRef.current);
       textChangeHandlerRef.current = null;
     }
-  };
+  }, []);
 
-  const [syncDeltaSetting, setSynDeltaSetting] = useState<Setting>({
+  const [syncDeltaSetting, setSynDeltaSetting] = useState<Setting>(() => ({
     containerRef: setting.containerRef,
-    options: { ...setting.options },
+    options: setting.options,
     setup: (quill) => {
       syncDeltaSetup(quill);
       setting.setup?.(quill);
@@ -218,26 +226,31 @@ export const useSyncDelta = (setting: Setting, initialDelta: Delta = new Delta()
       syncDeltaCleanup(quill);
       setting.cleanup?.(quill);
     }
-  });
+  }));
 
-  const syncDelta = (quill: Quill | null, delta: Delta) => {
-    if (quill !== null) {
-      setDelta(delta);
-      quill?.setContents(delta);
+  const syncDelta = useCallback((quill: Quill | null, delta: Delta) => {
+    if (quill === null) {
+      console.warn('syncDelta called with null Quill instance');
+      return;
     }
-  };
+    setDelta(delta);
+    quill.setContents(delta);
+  }, []);
 
-  const updateSetting = (setting: Setting) => {
+  const updateSetting = useCallback((setting: Setting) => {
     setSynDeltaSetting({
       containerRef: setting.containerRef,
-      options: { ...setting.options },
+      options: setting.options,
       setup: (quill) => {
         syncDeltaSetup(quill);
         setting.setup?.(quill);
       },
-      cleanup: setting.cleanup
+      cleanup: (quill) => {
+        syncDeltaCleanup(quill);
+        setting.cleanup?.(quill);
+      }
     });
-  };
+  }, [syncDeltaSetup, syncDeltaCleanup]);
 
   return {
     delta,
