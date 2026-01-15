@@ -1,6 +1,6 @@
 import Quill from 'quill';
 import { render, screen, waitFor, within } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 import { editQuillRTLHelper, selectQuillRTLHelper } from '../test-util/helper';
 import { user } from '../../vitest.setup';
@@ -29,6 +29,8 @@ import { UpdateCleanupPD } from '../test-util/components/test-use-persistent-del
 import { UpdateSetupPD } from '../test-util/components/test-use-persistent-delta/UpdateSetup';
 import { UpdateOptionsPD } from '../test-util/components/test-use-persistent-delta/UpdateOptions';
 import { UsePersitentDelta } from '../test-util/components/test-use-persistent-delta/UsePersistentDelta';
+import { QuillInitError } from '../test-util/components/test-error-handling/QuillInitError';
+import { SyncDeltaNull } from '../test-util/components/test-sync-delta-null/SyncDeltaNull';
 
 const enterAction = '[Enter]';
 
@@ -526,5 +528,67 @@ describe('The case for setting a custom toolbar', () => {
   it('sets a custom toolbar', async () => {
     render(<RegisterToolbar />);
     expect(await screen.findByLabelText('strike')).toBeVisible();
+  });
+});
+
+// ----------------------------------------------------------------------------------------------------------
+
+describe('The case for error handling during Quill initialization', () => {
+  it('handles initialization errors gracefully', async () => {
+    // Spy on console.error to verify error is logged
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    render(<QuillInitError />);
+
+    // Wait for the component to attempt initialization
+    await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Failed to initialize Quill:',
+        expect.any(Error)
+      );
+    });
+
+    // Verify the container exists but Quill failed to initialize
+    expect(screen.getByTestId('error-container')).toBeInTheDocument();
+
+    consoleErrorSpy.mockRestore();
+  });
+});
+
+// ----------------------------------------------------------------------------------------------------------
+
+describe('The case for calling syncDelta with null Quill instance', () => {
+  it('warns when syncDelta is called with null', async () => {
+    // Spy on console.warn to verify warning is logged
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    render(<SyncDeltaNull />);
+
+    // Click button to call syncDelta with null
+    await user.click(screen.getByRole('button', { name: 'Call with null' }));
+
+    // Verify warning was logged
+    expect(consoleWarnSpy).toHaveBeenCalledWith('syncDelta called with null Quill instance');
+
+    // Verify call count increased (function was called)
+    expect(await screen.findByTestId('call-count')).toHaveTextContent('1');
+
+    consoleWarnSpy.mockRestore();
+  });
+
+  it('works correctly when syncDelta is called with valid Quill instance', async () => {
+    render(<SyncDeltaNull />);
+
+    // Wait for Quill to initialize
+    await waitFor(() => document.getElementsByClassName('ql-editor'));
+
+    // Click button to call syncDelta with actual quill instance
+    await user.click(screen.getByRole('button', { name: 'Call with quill' }));
+
+    // Verify call count increased
+    expect(await screen.findByTestId('call-count')).toHaveTextContent('1');
+
+    // Verify content was updated
+    expect(await screen.findByText('with quill')).toBeVisible();
   });
 });
