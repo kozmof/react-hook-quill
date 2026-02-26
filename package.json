@@ -1,7 +1,7 @@
 {
   "name": "react-hook-quill",
   "private": false,
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "React Hook Quill is a lightweight wrapper for Quill, the rich text editor that does not interfere with the design of either React or Quill.",
   "keywords": [
     "React",
@@ -44,7 +44,9 @@
     "pack:check-compare": "counts=$(npm run --silent pack:check-counts) && if [ $counts -ne 7 ]; then echo ERROR: check files in tgz; exit 1; else echo OK; fi"
   },
   "dependencies": {
-    "quill": "^2.0.3",
+    "quill": "^2.0.3"
+  },
+  "peerDependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
